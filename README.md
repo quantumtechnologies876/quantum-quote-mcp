@@ -12,10 +12,13 @@ Settings). It looks like this (key + URL filled in for you):
 
 ```bash
 claude mcp add quantum-quotes \
-  --env QUANTUM_API_KEY=qq_xxxxxxxx \
+  --env QUANTUM_API_KEY=qk_xxxxxxxx \
   --env QUANTUM_QUOTES_URL=https://your-quantum-app \
   -- npx -y github:quantumtechnologies876/quantum-quote-mcp
 ```
+
+The key is a **quotes-scoped** key (`qk_…`) — separate from your CLI key, and
+limited to quote authoring.
 
 Run it once (terminal, or paste into Claude Code and let it set up).
 
@@ -43,7 +46,7 @@ Run it once (terminal, or paste into Claude Code and let it set up).
 
 | Var | Meaning |
 | --- | --- |
-| `QUANTUM_API_KEY` | Your CLI API key (`qq_…`) |
+| `QUANTUM_API_KEY` | Your quotes-scoped key (`qk_…`) |
 | `QUANTUM_QUOTES_URL` | The platform base URL |
 
 ## Requirements
