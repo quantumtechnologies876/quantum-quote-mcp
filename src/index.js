@@ -85,6 +85,37 @@ server.tool(
   () => tool(() => api("/api/schema")),
 );
 
+/* Drafts — customize a quote BEFORE it's published. The rep builds a base in the
+ * platform (saved as a draft), you enrich the draft document, then the rep
+ * publishes it once from the builder. */
+server.tool(
+  "list_drafts",
+  "List the rep's in-progress quote drafts (id, title). Use to find a draft to customize before it's published.",
+  {},
+  () => tool(() => api("/api/quote-drafts")),
+);
+
+server.tool(
+  "get_draft",
+  "Fetch a quote draft's current document by id. Load this before customizing a draft.",
+  { id: z.string().describe("The draft id") },
+  ({ id }) => tool(() => api(`/api/quote-drafts/${id}`)),
+);
+
+server.tool(
+  "update_draft",
+  "Validate + save a quote draft's document (WIP — not yet published). The rep publishes it from the builder afterward. Returns validation errors on failure.",
+  {
+    id: z.string().describe("The draft id"),
+    document: z
+      .object({})
+      .passthrough()
+      .describe("The full, updated quote document (keep internal line-item fields intact)"),
+  },
+  ({ id, document }) =>
+    tool(() => api(`/api/quote-drafts/${id}`, { method: "PUT", body: JSON.stringify({ document }) })),
+);
+
 server.tool(
   "publish_quote_version",
   "Publish a document as a NEW immutable version of an existing quote (same shareable link). Re-runs the validator + authority checks; a quote over authority may return 202 (pending approval). Returns validation errors on failure so you can fix and retry.",
@@ -124,7 +155,28 @@ server.resource(
   },
 );
 
-/* ---- Prompt ---- */
+/* ---- Prompts ---- */
+server.prompt(
+  "customize-draft",
+  "Customize a quote draft before it's published.",
+  { id: z.string().describe("The draft id"), instructions: z.string().optional() },
+  ({ id, instructions }) => ({
+    messages: [
+      {
+        role: "user",
+        content: {
+          type: "text",
+          text:
+            `Use the quantum-quotes tools to customize draft ${id} before it's published.\n\n` +
+            `1. Call get_draft(${JSON.stringify(id)}) to load the current document, and read schema://quote (or call get_schema) for the document format, price book, and your authority limits.\n` +
+            `2. ${instructions || "Turn it into a full custom proposal — add sections that fit the deal (a hero, prose, a tierSelector, addOns, a timeline, images) while keeping the customer, line items, and totals intact."}\n` +
+            `3. Save with update_draft. Then the rep publishes it from the builder.`,
+        },
+      },
+    ],
+  }),
+);
+
 server.prompt(
   "customize-quote",
   "Turn a base quote into a full custom proposal, published as a new version.",
