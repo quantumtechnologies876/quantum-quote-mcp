@@ -1,7 +1,7 @@
 {
   "name": "quantum-quote-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for authoring custom Quantum quotes from Claude Code.",
+  "version": "0.2.0",
+  "description": "MCP server for reading and revising Quantum quotes from Claude Code.",
   "type": "module",
   "bin": {
     "quantum-quote-mcp": "src/index.js"
